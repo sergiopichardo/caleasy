@@ -1,6 +1,6 @@
 import datetime 
 from googleapiclient.errors import HttpError
-from services.authentication.auth import AuthService
+from services.auth_service import AuthService
 
 class EventService:
     def __init__(self, auth_service: AuthService) -> None:
@@ -12,6 +12,8 @@ class EventService:
         :param auth_service: An instance of AuthService for authenticated Google API operations.
         """
         self.service = auth_service.get_authenticated_service()
+
+    
 
     def list_upcoming_events(self, num_events=10):
         """
