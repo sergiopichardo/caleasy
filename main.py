@@ -1,8 +1,10 @@
 import typer 
-from cli.events import app as events_app
+import cli.events as events
+
 
 app = typer.Typer()
-app.add_typer(events_app, name="events")
+app.add_typer(events.app, name="events")
+
 
 
 if __name__ == "__main__":
