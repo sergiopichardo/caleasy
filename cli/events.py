@@ -3,7 +3,7 @@ import typer
 app = typer.Typer()
 
 @app.command()
-def events():
+def list():
     """
     Displays a list of today's events from all calendars
     """
@@ -17,3 +17,7 @@ def events():
 04:00pm - 05:00pm       Meeting with Fulano De Tal
 """
     print(stub_text)
+
+if __name__ == "__main__":
+    app()
+
