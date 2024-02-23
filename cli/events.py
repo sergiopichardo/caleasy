@@ -50,6 +50,21 @@ def list(
     else:
         print(TODAYS_EVENTS_LIST)
 
+@app.command()
+def create(
+    title: Annotated[str, typer.Option(prompt=True)],
+    description: Annotated[str, typer.Option(prompt=True)],
+    start_time: Annotated[str, typer.Option(prompt=True)],
+    end_time: Annotated[str, typer.Option(prompt=True)],
+    attendees: Annotated[str, typer.Option(prompt="Enter attendees' emails (e.g. ana@email.com, bob@email.com)")],
+    
+):
+    print(f"title: {title}")
+    print(f"description: {description}")
+    print(f"time: {start_time} to {end_time}")
+    print(f"attendees: {attendees}")
+    
+
 
 if __name__ == "__main__":
     app()
