@@ -1,4 +1,5 @@
 import typer
+import pendulum
 from typing_extensions import Annotated
 from services.auth_service import AuthService
 from services.event_service import EventService
@@ -36,34 +37,35 @@ Fri Feb 23      08:00am - 08:50am   Gym (Back + Arms)
 """
 
 auth_service = AuthService()
-calendar_service = CalendarService()
 event_service = EventService(auth_service)
 
 
 @app.command()
 def list(
-    week: Annotated[
+    date: Annotated[
         bool, typer.Option(
-            "--week", 
-            help="List all events for the current week"
+            "--date", 
+            help="List all events for a specific date in the format YYYY-MM-DD"
         )
     ] = False
 ):
     """
-    Displays a list of today's events from all calendars
+    Displays a list of events from all calendars 
 
-    If --week is used, it lists all events for the week.
+    If no value for --date is passed, it return all events from all calendars based on the current date.
+
+    If --date is passed, it lists all events on that specific date.
+
     """
+    target_date_string = pendulum.now().to_date_string()
+    date_obj = pendulum.parse(target_date_string)
+    formatted_date = date_obj.format("dddd, MMMM DD, YYYY")
+    all_calendars = event_service.get_all_calendars()
+    all_events = event_service.get_events_from_calendars(all_calendars, target_date_string)
 
-    if week:
-        print(WEEKLY_EVENTS_LIST)
-    else:
-        # Todays events
-        
-        events = event_service.list_todays_events()
-        for event in events:
-            start = event["start"].get("dateTime", event["start"].get("date"))
-            print(start, event.get("summary"))
+    print(f"------ {formatted_date} -----")
+    for event in all_events:
+        print(f"{event['start_datetime'].format('hh:mm A')} - {event['end_datetime'].format('hh:mm A')}  {event['summary']} ({event['calendar_summary']})")
         
 
 @app.command()
