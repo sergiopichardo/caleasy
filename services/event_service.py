@@ -1,4 +1,4 @@
-import datetime 
+from typing import List, Dict, Any
 from googleapiclient.errors import HttpError
 from services.auth_service import AuthService
 
@@ -14,35 +14,16 @@ class EventService:
         self.service = auth_service.get_authenticated_service()
 
     
-
-    def list_upcoming_events(self, num_events=10):
+    def get_all_calendars(self) -> List[Dict[str, Any]]:
         """
-        Lists the upcoming events from the user's primary Google Calendar.
+            Args: 
+                None
 
-        Prints the start time and summary of each upcoming event to the console. If no upcoming events are found,
-        a message indicating this will be printed.
-
-        :param num_events: The maximum number of events to retrieve (default is 10).
+            Returns:
+                list: list of all calendars in a user's google's calendar account
         """
         try: 
-            now = datetime.datetime.utcnow().isoformat() + "Z" # 'Z' indicates UTC time
-            print("getting the upcoming events")
-            events_result = self.service.events().list(
-                calendarId="primary",
-                timeMin=now,
-                maxResults=num_events,
-                singleEvents=True,
-                orderBy="startTime"
-            ).execute()
-
-            events = events_result.get("items", [])
-
-            if not events:
-                print("No upcoming events found.")
-            else: 
-                for event in events:
-                    start = event["start"].get("dateTime", event["start"].get("date"))
-                    print(start, event.get("summary"))
-
+            calendars_result = self.service.calendarList().list().execute()
+            return calendars_result.get("items", [])
         except HttpError as error:
-            print(f"An error ocurred listing upcoming events: {error}")
+            print(f"An error ocurred fetching all calendars: {error}")
