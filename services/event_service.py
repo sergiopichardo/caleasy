@@ -1,8 +1,12 @@
+import os 
 from typing import List, Dict, Any
-
 import pendulum
 from googleapiclient.errors import HttpError
+
 from services.auth_service import AuthService
+from dotenv import load_dotenv
+load_dotenv()
+
 
 class EventService:
     def __init__(self, auth_service: AuthService) -> None:
@@ -73,3 +77,33 @@ class EventService:
         except HttpError as error: 
             print(f"An error occurred while fetching events from an individual calendar: {error}")
             return []
+
+    def get_events_from_calendars(self, calendars: List[Dict[str, Any]], target_date: str) -> List[Dict[str, Any]]:
+        """
+        Aggregate events from multiple calendars for a given date and sort them by start time.
+
+        Parameters:
+            calendars: A list of dictionaries, each containing details of a calendar.
+            target_date: The date for which to retrieve events, in 'YYYY-MM-DD' format.
+
+        Returns:
+            A sorted list of dictionaries, each representing an event on the specified date.
+        """
+        account_email = os.getenv('ACCOUNT_EMAIL')
+
+        all_events = [
+            {
+                'calendar_summary': 'Default' if calendar['summary'] == account_email else calendar['summary'],
+                'start_datetime': event['start_datetime'],
+                'end_datetime': event['end_datetime'],
+                'time_zone': event['time_zone'],
+                'summary': event['summary'],
+            }
+            
+            for calendar in calendars
+            for event in self.get_events_from_calendar(calendar, target_date)
+        ]
+
+        return sorted(all_events, key=lambda x: x['start_datetime'])
+
+
