@@ -1,7 +1,12 @@
 import typer
 from typing_extensions import Annotated
+from services.auth_service import AuthService
+from services.event_service import EventService
+from services.calendar_service import CalendarService
 
 app = typer.Typer()
+
+auth_service = AuthService
 
 TODAYS_EVENTS_LIST = """
 ----- Thursday, February 22nd, 2024 -----
@@ -30,6 +35,10 @@ Fri Feb 23      08:00am - 08:50am   Gym (Back + Arms)
 ...
 """
 
+auth_service = AuthService()
+calendar_service = CalendarService()
+event_service = EventService(auth_service)
+
 
 @app.command()
 def list(
@@ -45,10 +54,17 @@ def list(
 
     If --week is used, it lists all events for the week.
     """
+
     if week:
         print(WEEKLY_EVENTS_LIST)
     else:
-        print(TODAYS_EVENTS_LIST)
+        # Todays events
+        
+        events = event_service.list_todays_events()
+        for event in events:
+            start = event["start"].get("dateTime", event["start"].get("date"))
+            print(start, event.get("summary"))
+        
 
 @app.command()
 def create(
