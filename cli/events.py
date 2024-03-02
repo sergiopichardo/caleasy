@@ -53,16 +53,24 @@ def list(
 
     """
     with Progress("[progress.description]{task.description}", SpinnerColumn(), "{task.fields[status]}", console=console) as progress:
+        # create new progress task
         task = progress.add_task("[cyan]Fetching events...", status="initializing")
         
+        # get current date
         target_date_string = pendulum.now().to_date_string()
         date_obj = pendulum.parse(target_date_string)
         formatted_date = date_obj.format("dddd, MMMM DD, YYYY")
+
+        # get all calendars
         all_calendars = event_service.get_all_calendars()
 
+        # update progress indicator with "fetching tasks"
         progress.update(task, advance=1, status="fetching calendars")
 
+        # get all events
         all_events = event_service.get_events_from_calendars(all_calendars, target_date_string)
+
+        # update progress indicator with "completed"
         progress.update(task, advance=1, status="completed")
 
     console.print(f"------ {formatted_date} -----")
@@ -71,7 +79,6 @@ def list(
         end_time = event['end_datetime'].format('hh:mm A')
         event_summary = event['summary']
         calendar_summary = event['calendar_summary']
-
         console.print(f"{start_time} - {end_time} {event_summary} ({calendar_summary})")
 
 
