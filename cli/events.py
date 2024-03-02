@@ -37,12 +37,12 @@ console = Console()
 @app.command()
 def list(
     date: Annotated[
-        bool,
+        str,
         typer.Option(
             "--date",
             help="List all events for a specific date in the format YYYY-MM-DD",
         ),
-    ] = False
+    ] = ""
 ):
     """
     Displays a list of events from all calendars
@@ -52,15 +52,20 @@ def list(
     If --date is passed, it lists all events on that specific date.
 
     """
+    # target_date = None
+    if date != "":
+        target_date = pendulum.parse(date)
+    else:
+        target_date = pendulum.now()
+
+    # format date for heading
+    formatted_date = target_date.format("dddd, MMMM DD, YYYY")
+
+
     with Progress("[progress.description]{task.description}", SpinnerColumn(), "{task.fields[status]}", console=console) as progress:
         # create new progress task
         task = progress.add_task("[cyan]Fetching events...", status="initializing")
         
-        # get current date
-        target_date_string = pendulum.now().to_date_string()
-        date_obj = pendulum.parse(target_date_string)
-        formatted_date = date_obj.format("dddd, MMMM DD, YYYY")
-
         # get all calendars
         all_calendars = event_service.get_all_calendars()
 
@@ -68,7 +73,7 @@ def list(
         progress.update(task, advance=1, status="fetching calendars")
 
         # get all events
-        all_events = event_service.get_events_from_calendars(all_calendars, target_date_string)
+        all_events = event_service.get_events_from_calendars(all_calendars, target_date.to_date_string())
 
         # update progress indicator with "completed"
         progress.update(task, advance=1, status="completed")
@@ -79,7 +84,7 @@ def list(
         end_time = event['end_datetime'].format('hh:mm A')
         event_summary = event['summary']
         calendar_summary = event['calendar_summary']
-        console.print(f"{start_time} - {end_time} {event_summary} ({calendar_summary})")
+        console.print(f"{start_time} - {end_time}   {event_summary} ({calendar_summary})")
 
 
 @app.command()
