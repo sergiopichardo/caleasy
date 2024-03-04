@@ -87,18 +87,40 @@ def list(
         console.print(f"{start_time} - {end_time}   {event_summary} ({calendar_summary})")
 
 
-@app.command()
+@app.command("create")
 def create(
-    title: Annotated[str, typer.Option(prompt=True)],
-    description: Annotated[str, typer.Option(prompt=True)],
-    start_time: Annotated[str, typer.Option(prompt=True)],
-    end_time: Annotated[str, typer.Option(prompt=True)],
+    title: Annotated[
+        str, 
+        typer.Option(prompt="Enter the event title",
+                    help="Event title")
+    ],
+    description: Annotated[
+        str, 
+        typer.Option(prompt="Enter the event description",
+                    help="Event description")
+    ] = "",
+    date: Annotated[
+        str, 
+        typer.Option(prompt="Enter the event date (YYYY-MM-DD)",
+                    help="Event date")
+    ] = None,
+    start_time: Annotated[
+        str, 
+        typer.Option(prompt="Enter the event start time",
+                    help="Event start time")
+    ] = None,
+    end_time: Annotated[
+        str, 
+        typer.Option(prompt="Enter the event end time",
+                    help="Event end time")
+    ] = None,
     attendees: Annotated[
         str,
         typer.Option(
-            prompt="Enter attendees' emails (e.g. ana@email.com, bob@email.com)"
+            prompt="Enter attendees' emails (e.g. ana@email.com, bob@email.com)",
+            help="Event's attendees"
         ),
-    ],
+    ] = None,
 ):
     print(f"title: {title}")
     print(f"description: {description}")
